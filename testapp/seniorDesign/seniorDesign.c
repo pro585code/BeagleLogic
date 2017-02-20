@@ -43,6 +43,11 @@ inline void quadrature_counter(int buffer1, int buffer2)
 	read[0] = buffer1;
 	read[1] = buffer2;
 
+	//remove
+	while (1){
+		//do stuff forever
+	}
+
 	//will be doing timing and masking stuff here
 
 	// if all bit pairs in the first byte are going forward, avoid shifting just add 4 to forward count
