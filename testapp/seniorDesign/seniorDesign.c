@@ -79,12 +79,25 @@ void changeState(int current1, int current2){
         break;
     }
 
+    /* Debug */
+    /*
+    printf("forward counts %d\n", forwardCount[i]);
+    printf("backward counts %d\n", backwardCount[i]);
+    printf("error counts %d\n", errorCount[i]);
+    */
+
     /* shift all bytes to look at next bit pair */
     data.LH = data.LH >>2;
     data.HL = data.HL >>2;
     data.HH = data.HH >>2;
     mask = mask >> 2;
   }
+
+  /* Debug */
+  printf("forward counts %d\n", forwardCount[i]);
+  printf("backward counts %d\n", backwardCount[i]);
+  printf("error counts %d\n", errorCount[i]);
+
 }
 
 /* state functions */
@@ -92,18 +105,18 @@ void stateLL(int temp){
 
   if(temp == data.LH){
     risingEdgeCounts[i*2+1]++;
-    countbackward++;
+    backwardCount[i]++;
     presentState[i] = LH;
   }
   else if(temp == data.HL){
     risingEdgeCounts[i*2]++;
-    countforward++;
+    forwardCount[i]++;
     presentState[i] = HL;
   }
   else if( temp == data.HH){
     risingEdgeCounts[i*2]++;
     risingEdgeCounts[i*2+1]++;
-    counterror++;
+    errorCount[i]++;
     presentState[i] = INIT;
     previousState = LL;
   }
@@ -118,17 +131,17 @@ void stateLH(int temp){
 
     if(temp == data.HL){
       risingEdgeCounts[i*2]++;
-      counterror++;
+      errorCount[i]++;
       presentState[i] = INIT;
       previousState = LH;
     }
     else if(temp == data.LL){
-      countforward++;
+      forwardCount[i]++;
       presentState[i] = LL;
     }
     else if(temp == data.HH){
       risingEdgeCounts[i*2]++;
-      countbackward++;
+      backwardCount[i]++;
       presentState[i] = HH;
     }
     else if(temp != data.LH){
@@ -142,17 +155,17 @@ void stateHL(int temp){
 
     if(temp == data.LH){
       risingEdgeCounts[i*2+1]++;
-      counterror++;
+      errorCount[i]++;
       presentState[i] = INIT;
       previousState = HL;
     }
     else if(temp == data.LL){
-      countbackward++;
+      backwardCount[i]++;
       presentState[i] = LL;
     }
     else if(temp == data.HH){
       risingEdgeCounts[i*2+1]++;
-      countforward++;
+      forwardCount[i]++;
       presentState[i] = HH;
     }
     else if(temp != data.HL){
@@ -165,15 +178,15 @@ void stateHL(int temp){
 void stateHH(int temp){
 
     if(temp == data.LH){
-      countforward++;
+      forwardCount[i]++;
       presentState[i] = LH;
     }
     else if(temp == data.HL){
-      countbackward++;
+      backwardCount[i]++;
       presentState[i] = HL;
     }
     else if(temp == data.LL){
-      counterror++;
+      errorCount[i]++;
       presentState[i] = INIT;
       previousState = HH;
     }
@@ -218,7 +231,7 @@ void stateINIT(int temp, state previous){
     else if(temp == data.LL){
 		presentState[i] = LL;
     }
-    else if (temp == data.HH){ 
+    else if (temp == data.HH){
 		presentState[i] = HH;
 		if(previous == HL || previous == LL)
 			risingEdgeCounts[i*2+1]++;
