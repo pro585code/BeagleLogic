@@ -94,18 +94,21 @@ void stateLL(int temp){
 
   if(temp == data.LH){
     risingEdgeCounts[j*2+1]++;
+    printf("*************************");
     LastRisingEdgeTime[j*2+1] = clockValue;
     backwardCount[j]++;
     presentState[j] = LH;
   }
   else if(temp == data.HL){
     risingEdgeCounts[j*2]++;
+    printf("rising edge HL**************************");
     LastRisingEdgeTime[j*2] = clockValue;
     forwardCount[j]++;
     presentState[j] = HL;
   }
   else if( temp == data.HH){
     risingEdgeCounts[j*2]++;
+    printf("**************************");
     LastRisingEdgeTime[j*2] = clockValue;
     risingEdgeCounts[j*2+1]++;
     LastRisingEdgeTime[j*2+1] = clockValue;
