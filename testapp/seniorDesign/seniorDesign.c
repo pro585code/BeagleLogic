@@ -21,6 +21,10 @@
 #define dataHL 0b10000000
 #define dataHH 0b11000000
 #define dataLL 0b00000000
+#define rstLH  0b00000100
+#define rstHL  0b00001000
+#define rstHH  0b00001100
+#define rstLL  0b00000000
 
 /* MQTT defined values */
 #define ADDRESS		"tcp://localhost:1883"
@@ -52,10 +56,10 @@ void changeState(int current1, int current2){
     if(j==4){
 
       /* reset for the 2nd byte */
-      data.LH = dataLH;
-      data.HL = dataHL;
-      data.HH = dataHH;
-      mask = dataHH;
+      data.LH = rstLH;
+      data.HL = rstHL;
+      data.HH = rstHH;
+      mask = rstHH;
       read = current2;
 
     }
@@ -94,18 +98,22 @@ void stateLL(int temp){
 
   if(temp == data.LH){
     risingEdgeCounts[j*2+1]++;
+    printf("LL lh\n");
     LastRisingEdgeTime[j*2+1] = clockValue;
     backwardCount[j]++;
     presentState[j] = LH;
   }
   else if(temp == data.HL){
     risingEdgeCounts[j*2]++;
+    printf("rising edge HL**************************\n");
+    printf("%d\n", risingEdgeCounts[j*2]);
     LastRisingEdgeTime[j*2] = clockValue;
     forwardCount[j]++;
     presentState[j] = HL;
   }
   else if( temp == data.HH){
     risingEdgeCounts[j*2]++;
+    printf("LH-HH\n");
     LastRisingEdgeTime[j*2] = clockValue;
     risingEdgeCounts[j*2+1]++;
     LastRisingEdgeTime[j*2+1] = clockValue;
@@ -124,6 +132,7 @@ void stateLH(int temp){
 
     if(temp == data.HL){
       risingEdgeCounts[j*2]++;
+	printf("LH-HL\n");
       LastRisingEdgeTime[j*2] = clockValue;
       errorCount[j]++;
       presentState[j] = INIT;
@@ -131,11 +140,13 @@ void stateLH(int temp){
     }
     else if(temp == data.LL){
       forwardCount[j]++;
+      printf("LH-LL\n");
       presentState[j] = LL;
     }
     else if(temp == data.HH){
       risingEdgeCounts[j*2]++;
       LastRisingEdgeTime[j*2] = clockValue;
+printf("LH-HH\n");
       backwardCount[j]++;
       presentState[j] = HH;
     }
@@ -150,6 +161,7 @@ void stateHL(int temp){
 
     if(temp == data.LH){
       risingEdgeCounts[j*2+1]++;
+	printf("HL - LH\n");
       LastRisingEdgeTime[j*2+1] = clockValue;
       errorCount[j]++;
       presentState[j] = INIT;
@@ -157,10 +169,12 @@ void stateHL(int temp){
     }
     else if(temp == data.LL){
       backwardCount[j]++;
+	printf("HL-LL\n");
       presentState[j] = LL;
     }
     else if(temp == data.HH){
       risingEdgeCounts[j*2+1]++;
+      printf("HL-HH\n");
       LastRisingEdgeTime[j*2+1] = clockValue;
       forwardCount[j]++;
       presentState[j] = HH;
@@ -176,14 +190,17 @@ void stateHH(int temp){
 
     if(temp == data.LH){
       forwardCount[j]++;
+      printf("HH - LH\n");
       presentState[j] = LH;
     }
     else if(temp == data.HL){
       presentState[j] = HL;
+      printf("HH - HL\n");
     }
     else if(temp == data.LL){
       errorCount[j]++;
       presentState[j] = INIT;
+      printf("HH - LH\n");
       previousState = HH;
     }
     else if(temp != data.HH){
@@ -195,8 +212,9 @@ void stateHH(int temp){
 
 void stateINIT(int temp, state previous){
 
+printf("You are in INIT so\n ");
     if(previous == INIT){
-
+		// fuck me 
         if(temp == data.LH){
           presentState[j] = LH;
         }
@@ -264,7 +282,7 @@ inline void MQTT_queueData(void *MQTT_package) {
   /* Signal to publish */
 	sem_getvalue(&MQTT_mutex, &semVal);
 	sem_post(&MQTT_mutex);
-	printf("semVal after post is %d\n", semVal);
+	//printf("semVal after post is %d\n", semVal);
 
 	/* Set Flag to 0*/
 	pub_signal = 0;
@@ -301,7 +319,7 @@ void *MQTT_thread(void *MQTT_package){
 
   		/* Wait on signal */
   		sem_getvalue(package->MQTT_mutex, &semVal);
-  		printf("semVal = %d\n", semVal);
+  		//printf("semVal = %d\n", semVal);
   		sem_wait(package->MQTT_mutex);
 
       /* Send Hello */

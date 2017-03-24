@@ -46,9 +46,9 @@ sem_t MQTT_mutex;
 #define NONBLOCK
 
 /* for prover stroke */
-#define proverStart 0b00100000
-#define proverEnd   0b00010000
-#define proverMask  0b00110000
+#define proverStart 0b00000010
+#define proverEnd   0b00000001
+#define proverMask  0b00000011
 
 /* Returns time difference in microseconds */
 static uint64_t timediff(struct timespec *tv1, struct timespec *tv2)
@@ -93,6 +93,7 @@ void timer_handler(int signum) {
 int main(int argc, char **argv)
 {
 	int cnt1;
+	int stopper = 0;
 	size_t sz, sz_to_read, cnt;
 
 	/*buffer for read*/
@@ -207,6 +208,12 @@ int main(int argc, char **argv)
 				/* incremeant our time */
 				clockValue++;
 
+				if(clockValue == 10000){
+					stopper ++;
+				}
+				if(stopper == 2){
+					return 1;
+				}
 				/* Check past with present values */
 				if (buffer[i] != buffer[i-2] || buffer[i + 1] != buffer[i-1]){
 					changeState((int) buffer[i], (int) buffer[i + 1]);
@@ -235,7 +242,7 @@ int main(int argc, char **argv)
 
 			/* Debug timer */
 			clock_gettime(CLOCK_MONOTONIC, &t4);
-			printf("time for read and process = %jd\n", timediff(&t3,&t4));
+			//printf("time for read and process = %jd\n", timediff(&t3,&t4));
 
 			if (sz == 0)
 				break;
