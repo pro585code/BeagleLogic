@@ -1,14 +1,7 @@
-/**
-* beaglelogictestapp.c
-*
-* Copyright (C) 2014 Kumar Abhishek
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License version 2 as
-* published by the Free Software Foundation.
-*
-* 8Mhz sample rate 16 bit samples
-*/
+/** * beaglelogictestapp.c * * Copyright (C) 2014 Kumar Abhishek * * This program is 
+free software; you can redistribute it and/or modify * it under the terms of the GNU 
+General Public License version 2 as * published by the Free Software Foundation. * * 
+8Mhz sample rate 16 bit samples */
 
 #include <signal.h>
 #include <stdint.h>
@@ -155,11 +148,11 @@ int main(int argc, char **argv)
 
 	/* Configure buffer size - we need a minimum of 32 MB */
 	beaglelogic_get_buffersize(bfd, &sz_to_read);
-	if (sz_to_read < 32 * 1024 * 1024) {
-		beaglelogic_set_buffersize(bfd, sz_to_read = 32 * 1024 * 1024);
+	if (sz_to_read < 128 * 1024 * 1024) {
+		beaglelogic_set_buffersize(bfd, sz_to_read = 128 * 1024 * 1024);
 		beaglelogic_get_buffersize(bfd, &sz_to_read);
 	}
-	buf = calloc(sz_to_read / 32, 32);
+	buf = calloc(sz_to_read / 128, 128);
 	memset(buf, 0xFF, sz_to_read);
 	printf("Buffer size = %d MB \n", sz_to_read / (1024 * 1024));
 
@@ -178,9 +171,9 @@ int main(int argc, char **argv)
 	package_t.bfd_cpy = bfd;
 	package_t.pollfd = pollfd;
 	package_t.MQTT_mutex = &MQTT_mutex;
-	if (start_MQTT_t(&package_t, MQTT_t)) {
-		return 1;
-	}
+	//if (start_MQTT_t(&package_t, MQTT_t)) {
+	//	return 1;
+	//}
 
 	clock_gettime(CLOCK_MONOTONIC, &t1);
 	cnt = 0;
@@ -192,15 +185,17 @@ int main(int argc, char **argv)
 #if defined(NONBLOCK)
 		poll(&pollfd, 1, 500);
 		int i;
+		int changes = 0;
+		clock_gettime(CLOCK_MONOTONIC, &t3);
 		while (1) {
 
 			/*Start a timer for Debug */
-			clock_gettime(CLOCK_MONOTONIC, &t3);
+			//clock_gettime(CLOCK_MONOTONIC, &t3);
 
 			sz = read(bfd, buffer, 4*1000*1000);
 
 			/*Check For bit changes*/
-			for (i = 0; i < 4 * 1000 * 1000; i+=2) {
+			for (i = 2; i < 4 * 1000 * 1000; i+=2) {
 
 				/*Debug*/
 				//printf("%2x %2x\n", buffer[i], buffer[i + 1]);
@@ -208,42 +203,43 @@ int main(int argc, char **argv)
 				/* incremeant our time */
 				clockValue++;
 
-				if(clockValue == 10000){
-					stopper ++;
-				}
-				if(stopper == 2){
-					return 1;
-				}
 				/* Check past with present values */
-				if (buffer[i] != buffer[i-2] || buffer[i + 1] != buffer[i-1]){
-					changeState((int) buffer[i], (int) buffer[i + 1]);
+				if (buffer[i + 1] != buffer[i-1]){
+					changes++;
+					printf("%2x %2x %d this is i %d\n", buffer[i], buffer[i+1], changes,i);
+					//changeState((int) buffer[i], (int) buffer[i + 1]);
 				}
 
 				/* check to see if we need to transmit to MQTT*/
 				if (pub_signal){
 
 					/* Update event */
-					event = 0;
-					MQTT_queueData(&package_t);
+				//	event = 0;
+				//	MQTT_queueData(&package_t);
 				}
 				else if(buffer[i+1] & proverMask == proverStart){
 
 					/* Update event */
-					event = 1;
-					MQTT_queueData(&package_t);
+				//	event = 1;
+				//	MQTT_queueData(&package_t);
 				}
 				else if(buffer[i] & proverMask == proverEnd){
 
 					/* Update event */
-					event = 2;
-					MQTT_queueData(&package_t);
+				//	event = 2;
+				//	MQTT_queueData(&package_t);
 				}
 			}
 
 			/* Debug timer */
 			clock_gettime(CLOCK_MONOTONIC, &t4);
 			//printf("time for read and process = %jd\n", timediff(&t3,&t4));
+                        if(timediff(&t3, &t4) > 20000000){
 
+			  printf("clock vlaue = %lu", clockValue);
+                          printf("time us %llu\n", timediff(&t3,&t4));
+                          return 1;
+                        }
 			if (sz == 0)
 				break;
 			else if (sz == -1) {

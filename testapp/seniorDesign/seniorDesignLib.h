@@ -52,12 +52,12 @@ typedef struct {
 int Rand_Int(int a, int b);
 
 /* Quadrature State Machine functions */
-void changeState(int current1, int current2);
-void stateLL(int temp);
-void stateLH(int temp);
-void stateHL(int temp);
-void stateHH(int temp);
-void stateINIT(int temp, state previous);
+extern void changeState(int current1, int current2);
+extern void stateLL(int temp);
+extern void stateLH(int temp);
+extern void stateHL(int temp);
+extern void stateHH(int temp);
+extern void stateINIT(int temp, state previous);
 
 /* MQTT functions */
 int  start_MQTT_t();

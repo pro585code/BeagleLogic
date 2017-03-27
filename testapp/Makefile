@@ -1,8 +1,8 @@
 OBJS = beaglelogic_seniorDesignV2.o beaglelogic.o seniorDesign.o 
 CC = gcc
 DEBUG = -g
-CFLAGS = -Wall -c -pthread $(DEBUG)
-LFLAGS = -Wall -pthread -lpaho-mqtt3c $(DEBUG)
+CFLAGS = -c -pthread $(DEBUG)
+LFLAGS = -pthread -lpaho-mqtt3c $(DEBUG)
 
 seniorDesignAPP : $(OBJS)
 	$(CC) $(LFLAGS) $(OBJS) -o seniorDesignAPP

@@ -41,7 +41,7 @@ state previousState=INIT;//for use with stateINIT only
 stateData data;
 
 /* Quadrature state machine */
-void changeState(int current1, int current2){
+inline void changeState(int current1, int current2){
   int read = current1;
   int temp = 0x00;
   int mask = dataHH;
@@ -94,7 +94,7 @@ void changeState(int current1, int current2){
 }
 
 /* state functions */
-void stateLL(int temp){
+inline void stateLL(int temp){
 
   if(temp == data.LH){
     risingEdgeCounts[j*2+1]++;
@@ -105,8 +105,10 @@ void stateLL(int temp){
   }
   else if(temp == data.HL){
     risingEdgeCounts[j*2]++;
-    printf("rising edge HL**************************\n");
-    printf("%d\n", risingEdgeCounts[j*2]);
+    printf("rising edge HL************************** %d \n", j);
+    if(risingEdgeCounts[j*2] > 9950){
+   	printf("%lu\n", risingEdgeCounts[j*2]);
+    }
     LastRisingEdgeTime[j*2] = clockValue;
     forwardCount[j]++;
     presentState[j] = HL;
@@ -128,11 +130,11 @@ void stateLL(int temp){
   }
 }
 
-void stateLH(int temp){
+inline void stateLH(int temp){
 
     if(temp == data.HL){
       risingEdgeCounts[j*2]++;
-	printf("LH-HL\n");
+      printf("LH-HL\n");
       LastRisingEdgeTime[j*2] = clockValue;
       errorCount[j]++;
       presentState[j] = INIT;
@@ -146,7 +148,7 @@ void stateLH(int temp){
     else if(temp == data.HH){
       risingEdgeCounts[j*2]++;
       LastRisingEdgeTime[j*2] = clockValue;
-printf("LH-HH\n");
+      printf("LH-HH\n");
       backwardCount[j]++;
       presentState[j] = HH;
     }
@@ -157,11 +159,11 @@ printf("LH-HH\n");
     }
 }
 
-void stateHL(int temp){
+inline void stateHL(int temp){
 
     if(temp == data.LH){
       risingEdgeCounts[j*2+1]++;
-	printf("HL - LH\n");
+      printf("HL - LH\n");
       LastRisingEdgeTime[j*2+1] = clockValue;
       errorCount[j]++;
       presentState[j] = INIT;
@@ -169,7 +171,7 @@ void stateHL(int temp){
     }
     else if(temp == data.LL){
       backwardCount[j]++;
-	printf("HL-LL\n");
+      printf("HL-LL %d \n", j);
       presentState[j] = LL;
     }
     else if(temp == data.HH){
@@ -186,7 +188,7 @@ void stateHL(int temp){
     }
 }
 
-void stateHH(int temp){
+inline void stateHH(int temp){
 
     if(temp == data.LH){
       forwardCount[j]++;
@@ -210,56 +212,65 @@ void stateHH(int temp){
     }
 }
 
-void stateINIT(int temp, state previous){
+inline void stateINIT(int temp, state previous){
 
 printf("You are in INIT so\n ");
     if(previous == INIT){
-		// fuck me 
+
         if(temp == data.LH){
           presentState[j] = LH;
+	  printf("INIT - LH \n");
         }
         else if(temp == data.HL){
           presentState[j] = HL;
+	  printf("INIT - HL \n");
         }
         else if (temp == data.LL){
           presentState[j] = LL;
+	  printf("INIT - LL %d \n", j);
         }
         else if(temp == data.HH){
           presentState[j] = HH;
+	  printf("INIT - HH \n");
         }
         else{
           printf("Error at start of INIT \n");
+	  printf("We fucked up");
         }
     }
     else if(temp == data.LH){
-		presentState[j] = LH;
-		if(previous == LL || previous == HL)
-			risingEdgeCounts[j*2+1]++;
+      presentState[j] = LH;
+      printf("temp = LH\n");
+      if(previous == LL || previous == HL)
+	risingEdgeCounts[j*2+1]++;
       LastRisingEdgeTime[j*2+1] = clockValue;
     }
     else if(temp == data.HL){
-		presentState[j] = HL;
-		if(previous == LL || previous == LH)
-			risingEdgeCounts[j*2]++;
+      presentState[j] = HL;
+      printf("temp = HL \n");
+      if(previous == LL || previous == LH)
+	risingEdgeCounts[j*2]++;
       LastRisingEdgeTime[j*2] = clockValue;
     }
     else if(temp == data.LL){
-		    presentState[j] = LL;
+      presentState[j] = LL;
+      printf("temp = LL \n");
     }
     else if (temp == data.HH){
       presentState[j] = HH;
-		  if(previous == HL || previous == LL){
-			     risingEdgeCounts[j*2+1]++;
+      printf("temp = hh \n");
+      if(previous == HL || previous == LL){
+	   risingEdgeCounts[j*2+1]++;
            LastRisingEdgeTime[j*2+1] = clockValue;
       }
-		  else if(previous == LH || previous == LL){
-			     risingEdgeCounts[j*2]++;
-           LastRisingEdgeTime[j*2] = clockValue;
+      else if(previous == LH || previous == LL){
+	risingEdgeCounts[j*2]++;
+        LastRisingEdgeTime[j*2] = clockValue;
       }
     }
     else{
-		    printf("Error Init\n");
-		    presentState[j] = INIT;
+        printf("Error Init\n");
+        presentState[j] = INIT;
         previous = INIT;
   }
 }
