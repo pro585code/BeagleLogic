@@ -206,6 +206,7 @@ int main(int argc, char **argv)
 				/* Check past with present values */
 				if (buffer[i + 1] != buffer[i-1]){
 					changes++;
+					//Kumar, if you somehow end up looking at this, our problems are shown here regards, Mike 
 					printf("%2x %2x %d this is i %d\n", buffer[i], buffer[i+1], changes,i);
 					//changeState((int) buffer[i], (int) buffer[i + 1]);
 				}
