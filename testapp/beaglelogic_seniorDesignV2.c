@@ -1,8 +1,8 @@
-/** * beaglelogictestapp.c * * Copyright (C) 2014 Kumar Abhishek * * This program is 
-free software; you can redistribute it and/or modify * it under the terms of the GNU 
-General Public License version 2 as * published by the Free Software Foundation. * * 
+/** * beaglelogictestapp.c * * Copyright (C) 2014 Kumar Abhishek * * This program is
+free software; you can redistribute it and/or modify * it under the terms of the GNU
+General Public License version 2 as * published by the Free Software Foundation. * *
 8Mhz sample rate 16 bit samples */
-//hhelkhj
+
 #include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -191,7 +191,6 @@ int main(int argc, char **argv)
 		int changes = 0;
 		clock_gettime(CLOCK_MONOTONIC, &t3);
 
-		//change this in the near future 
 		while (1) {
 
 			/*Start a timer for Debug */
@@ -215,6 +214,7 @@ int main(int argc, char **argv)
 					changes++;
 					//printf("%2x %2x %d this is i %d\n", buffer[i], buffer[i+1], changes,i);
 					changeState((int) buffer[i], (int) buffer[i + 1]);
+
 				}
 
 				/* check to see if we need to transmit to MQTT*/
@@ -245,14 +245,14 @@ int main(int argc, char **argv)
 			/* Debug timer */
 			clock_gettime(CLOCK_MONOTONIC, &t4);
 			//printf("time for read and process = %jd\n", timediff(&t3,&t4));
-                        if(timediff(&t3, &t4) > 20000000){
-
+      if(timediff(&t3, &t4) > 20000000){
 			  printf("clock vlaue = %lu", clockValue);
-                          printf("time us %llu\n", timediff(&t3,&t4));
-                          return 1;
-                        }
+        printf("time us %llu\n", timediff(&t3,&t4));
+        return 1;
+      }
 
 			//handles other things not to sure yet
+
 			if (sz == 0)
 				break;
 			else if (sz == -1) {
