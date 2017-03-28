@@ -103,6 +103,12 @@ void stateLL(int temp){
     LastRisingEdgeTime[j*2] = clockValue;
     forwardCount[j]++;
     presentState[j] = HL;
+    
+    //debug
+    if(risingEdgeCounts[j*2] > 9995){
+    	printf("%lu\n", risingEdgeCounts[j*2]);
+	    printf("%2x\n", temp);
+    }
   }
   else if( temp == data.HH){
     risingEdgeCounts[j*2]++;
@@ -199,15 +205,23 @@ void stateINIT(int temp, state previous){
 
         if(temp == data.LH){
           presentState[j] = LH;
+          risingEdgeCounts[j*2+1]++;
+          LastRisingEdgeTime[j*2+1] = clockValue;
         }
         else if(temp == data.HL){
           presentState[j] = HL;
+          	risingEdgeCounts[j*2]++;
+            LastRisingEdgeTime[j*2] = clockValue;
         }
         else if (temp == data.LL){
           presentState[j] = LL;
         }
         else if(temp == data.HH){
           presentState[j] = HH;
+          risingEdgeCounts[j*2]++;
+          LastRisingEdgeTime[j*2] = clockValue;
+      	  risingEdgeCounts[j*2+1]++;
+          LastRisingEdgeTime[j*2+1] = clockValue;
         }
         else{
           printf("Error at start of INIT \n");
