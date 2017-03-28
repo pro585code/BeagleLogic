@@ -103,6 +103,12 @@ void stateLL(int temp){
     LastRisingEdgeTime[j*2] = clockValue;
     forwardCount[j]++;
     presentState[j] = HL;
+ 
+    //debug
+    if(risingEdgeCounts[j*2] > 9995){
+    	printf("%lu\n", risingEdgeCounts[j*2]);
+	    printf("%2x\n", temp);
+    }
   }
   else if( temp == data.HH){
     risingEdgeCounts[j*2]++;
@@ -199,25 +205,33 @@ void stateINIT(int temp, state previous){
 
         if(temp == data.LH){
           presentState[j] = LH;
+          risingEdgeCounts[j*2+1]++;
+          LastRisingEdgeTime[j*2+1] = clockValue;
         }
         else if(temp == data.HL){
           presentState[j] = HL;
+          risingEdgeCounts[j*2]++;
+          LastRisingEdgeTime[j*2] = clockValue;
         }
         else if (temp == data.LL){
           presentState[j] = LL;
         }
         else if(temp == data.HH){
           presentState[j] = HH;
+          risingEdgeCounts[j*2]++;
+          LastRisingEdgeTime[j*2] = clockValue;
+      	  risingEdgeCounts[j*2+1]++;
+          LastRisingEdgeTime[j*2+1] = clockValue;
         }
         else{
           printf("Error at start of INIT \n");
         }
     }
     else if(temp == data.LH){
-		presentState[j] = LH;
-		if(previous == LL || previous == HL)
-			risingEdgeCounts[j*2+1]++;
-      LastRisingEdgeTime[j*2+1] = clockValue;
+      presentState[j] = LH;
+      if(previous == LL || previous == HL)
+        risingEdgeCounts[j*2+1]++;
+        LastRisingEdgeTime[j*2+1] = clockValue;
     }
     else if(temp == data.HL){
 		presentState[j] = HL;
@@ -264,7 +278,7 @@ inline void MQTT_queueData(void *MQTT_package) {
   /* Signal to publish */
 	sem_getvalue(&MQTT_mutex, &semVal);
 	sem_post(&MQTT_mutex);
-	printf("semVal after post is %d\n", semVal);
+	//printf("semVal after post is %d\n", semVal);
 
 	/* Set Flag to 0*/
 	pub_signal = 0;
@@ -301,7 +315,7 @@ void *MQTT_thread(void *MQTT_package){
 
   		/* Wait on signal */
   		sem_getvalue(package->MQTT_mutex, &semVal);
-  		printf("semVal = %d\n", semVal);
+  		//printf("semVal = %d\n", semVal);
   		sem_wait(package->MQTT_mutex);
 
       /* Send Hello */
