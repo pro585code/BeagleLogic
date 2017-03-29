@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 	size_t sz, sz_to_read, cnt;
 
 	/*buffer for read*/
-	char buffer[4 * 1000 * 1000] = {0};
+	char buffer[bufSZ] = {0};
 	char temp_buff1 = 0x0;  //both used to store the last two bytes of the 4MB buffer
 	char temp_buff2 = 0x0;
 	struct timespec t1, t2, t3, t4;
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
 
 	/* Configure capture settings */
 	clock_gettime(CLOCK_MONOTONIC, &t1);
-	beaglelogic_set_samplerate(bfd, 8 * 1000 * 1000);
+	beaglelogic_set_samplerate(bfd, 6 * 1000 * 1000);
 	beaglelogic_set_sampleunit(bfd, BL_SAMPLEUNIT_16_BITS);
 	beaglelogic_set_triggerflags(bfd, BL_TRIGGERFLAGS_CONTINUOUS);
 	clock_gettime(CLOCK_MONOTONIC, &t2);
