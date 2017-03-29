@@ -106,7 +106,7 @@ void stateLL(int temp){
     presentState[j] = HL;
  
     //debug
-    if(risingEdgeCounts[j*2] > 9995){
+    if(risingEdgeCounts[j*2] > 1){
     	printf("%lu\n", risingEdgeCounts[j*2]);
 	    printf("%2x\n", temp);
     }
