@@ -180,7 +180,7 @@ int main(int argc, char **argv)
 
 	clock_gettime(CLOCK_MONOTONIC, &t1);
 	cnt = 0;
-	for (i = 0; i < 10; i++) {
+//	for (i = 0; i < 10; i++) {
 
 		/* Configure counters */
 		cnt1 = 0;
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
 #if defined(NONBLOCK)
 		poll(&pollfd, 1, 500);
 		int i;
-		int changes = 0;
+		int risingEdgeDiff =100;
 		clock_gettime(CLOCK_MONOTONIC, &t3);
 
 		while (1) {
@@ -199,19 +199,21 @@ int main(int argc, char **argv)
 			sz = read(bfd, buffer, bufSZ);
 
 			/*Check For bit changes*/
-			for (i = 2; i < bufSZ; i+=2) {
+			for (i=2; i < bufSZ; i+=2) {
 
 				/*Debug*/
 				//printf("%2x %2x\n", buffer[i], buffer[i + 1]);
 
 				clockValue++;
 				if (buffer[i] != buffer[i-2] || buffer[i + 1] != buffer[i-1]){
-					changes++;
-					if(risingEdgeCounts[8] > 50){
-					  printf("Counts= %lu @i=  %d :: %2x %2x \n", i, risingEdgeCounts[8],buffer[i], buffer[i+1]);
+					//printf("changes %d \n", changes);
+					if((risingEdgeDiff - risingEdgeCounts[8]) <= 50){
+					  printf("Counts= %lu @i=  %d :: %2x %2x \n",risingEdgeCounts[8], i ,buffer[i], buffer[i+1]);
+					}
+					else if(risingEdgeDiff < risingEdgeCounts[8]) {
+						risingEdgeDiff += 75;
 					}
 					changeState((int) buffer[i], (int) buffer[i + 1]);
-
 				}
 				if (pub_signal){
 
@@ -232,7 +234,6 @@ int main(int argc, char **argv)
 				buffer[i-2] = 0;
 				buffer[i-1] = 0;
 			}
-
 			/* Debug timer */
 			clock_gettime(CLOCK_MONOTONIC, &t4);
 			//printf("time for read and process = %jd\n", timediff(&t3,&t4));
@@ -262,7 +263,7 @@ int main(int argc, char **argv)
 		} while (sz > 0 && cnt1 < sz_to_read);
 #endif
 		cnt += cnt1;
-	}
+//	}
 
 	clock_gettime(CLOCK_MONOTONIC, &t2);
 
