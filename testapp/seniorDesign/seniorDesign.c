@@ -81,6 +81,7 @@ inline void changeState(int current1, int current2){
         stateHH(temp);
         break;
       default:
+	printf("%2x %2x\n", current1, current2);
         stateINIT(temp,previousState);
         break;
     }
@@ -105,7 +106,6 @@ inline void stateLL(int temp){
   }
   else if(temp == data.HL){
     risingEdgeCounts[j*2]++;
-    //printf("rising edge HL************************** %d \n", j);
     if(risingEdgeCounts[j*2] > 25){
     	//printf("%lu\n", risingEdgeCounts[j*2]);
       //printf("%2x\n", temp);
@@ -249,16 +249,18 @@ inline void stateINIT(int temp, state previous){
     else if(temp == data.LH){
       presentState[j] = LH;
       printf("temp = LH\n");
-      if(previous == LL || previous == HL)
-      risingEdgeCounts[j*2+1]++;
-      LastRisingEdgeTime[j*2+1] = clockValue;
+      if(previous == LL || previous == HL){
+      	risingEdgeCounts[j*2+1]++;
+      	LastRisingEdgeTime[j*2+1] = clockValue;
+      }
     }
     else if(temp == data.HL){
       presentState[j] = HL;
       printf("temp = HL \n");
-      if(previous == LL || previous == LH)
-	    risingEdgeCounts[j*2]++;
-      LastRisingEdgeTime[j*2] = clockValue;
+      if(previous == LL || previous == LH){
+      	risingEdgeCounts[j*2]++;
+        LastRisingEdgeTime[j*2] = clockValue;
+      }
     }
     else if(temp == data.LL){
       presentState[j] = LL;

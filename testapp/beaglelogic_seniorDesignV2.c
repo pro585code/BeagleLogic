@@ -206,12 +206,19 @@ int main(int argc, char **argv)
 			//wait until file is read ?
 			while(!pollfd.revents){};
 			sz = read(bfd, buffer, bufSZ);
+			if(sz == 0)
+				continue;
+			if(sz==-1){
+				poll(&pollfd, 1, 500);
+				continue;
+			}
 
 			/* Save last 2 two for the next compare */
-			temp_buff1 = buffer[3999999];
+			/* aren't we doing this below??*/
+			//temp_buff1 = buffer[3999999];
 
 			/*Check For bit changes*/
-			for (i=0; i < bufSZ; i+=2) {
+			for (i=0; i < sz; i+=2) {
 
 				/*Debug*/
 				//printf("%2x %2x\n", buffer[i], buffer[i + 1]);
@@ -229,25 +236,29 @@ int main(int argc, char **argv)
 						//}
 						fprintf(fd, "\n %d, %2x, %2x, %d, %d, %llu", i, buffer[i], buffer[i+1], risingEdgeCounts[8], sz, masterTime);
 						changeState((int) buffer[i], (int) buffer[i + 1]);
+
 					}
 				}
 				else if(i==0){
 
 					/* first run ever */
-					if(runCounter  == 0){
-						changeState((int)buffer[0], (int)buffer[i+1]);
+					if(runCounter == 0){
+						changeState((int)buffer[i], (int)buffer[i+1]);
+						fprintf(fd, "\n %d, %2x, %2x, %d, %d, %llu", i, buffer[i], buffer[i+1], risingEdgeCounts[8], sz, masterTime);
 					}else{
-						/* if last bytes dont equal first in new buffer */
-						if(buffer[i] != temp_buff1 || buffer[i+1] != temp_buff2){
-							changeState((int) buffer[i], (int) buffer[i+1]);
+						if(temp_buff2 != buffer[i] || temp_buff1 != buffer[i+1]){
+
+							changeState((int)buffer[i], (int)buffer[i+1]);
+						        fprintf(fd, "\n %d, %2x, %2x, %d, %d, %llu", i, buffer[i], buffer[i+1], risingEdgeCounts[8], sz, masterTime);
 						}
 					}
+
 				}
 
 				/* Check to see if at the end of bytes read in if so save them*/
 				if(i == sz-2){
-					temp_buff2 = buffer[sz-2];
-					temp_buff1 = buffer[sz-1];
+					temp_buff2 = buffer[sz-2];  // 3,999,998
+					temp_buff1 = buffer[sz-1];  // 3,999,999 
 				}
 
 				/* Check to see if we need to transmit to MQTT */
@@ -283,12 +294,14 @@ int main(int argc, char **argv)
                         //}
 
 			//handles other things not to sure yet
+			/* moved this to above to prevent errors
 			if (sz == 0)
-				break;
-			else if (sz == -1) {
+				continue;
+			if (sz == -1) {
 				poll(&pollfd, 1, 500);
 				continue;
 			}
+			*/
 
 			cnt1 += sz;
 		}
@@ -296,8 +309,10 @@ int main(int argc, char **argv)
 		(void)pollfd;
 		do {
 			sz = read(bfd, buf2, 64 * 1024 * 16);
-			if (sz == -1)
+			if (sz == -1){
+				printf("broke\n");
 				break;
+			}
 			cnt1 += sz;
 		} while (sz > 0 && cnt1 < sz_to_read);
 #endif
