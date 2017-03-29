@@ -207,7 +207,7 @@ int main(int argc, char **argv)
 				clockValue++;
 				if (buffer[i] != buffer[i-2] || buffer[i + 1] != buffer[i-1]){
 					changes++;
-					if(risingEdgeCounts[8] > 1){
+					if(risingEdgeCounts[8] > 50){
 					  printf("Counts= %lu @i=  %d :: %2x %2x \n", i, risingEdgeCounts[8],buffer[i], buffer[i+1]);
 					}
 					changeState((int) buffer[i], (int) buffer[i + 1]);
