@@ -192,10 +192,8 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_MONOTONIC, &t3);
 
 		while (1) {
-
 			/*Start a timer for Debug */
 			//clock_gettime(CLOCK_MONOTONIC, &t3);
-
 			//wait until file is read ?
 			while(!pollfd.revents){};
 			sz = read(bfd, buffer, bufSZ);
@@ -206,37 +204,28 @@ int main(int argc, char **argv)
 				/*Debug*/
 				//printf("%2x %2x\n", buffer[i], buffer[i + 1]);
 
-				/* incremeant our time */
 				clockValue++;
-
-				/* Check past with present values */
 				if (buffer[i] != buffer[i-2] || buffer[i + 1] != buffer[i-1]){
 					changes++;
 					//printf("%2x %2x %d this is i %d\n", buffer[i], buffer[i+1], changes,i);
 					changeState((int) buffer[i], (int) buffer[i + 1]);
 
 				}
-
-				/* check to see if we need to transmit to MQTT*/
 				if (pub_signal){
 
-					/* Update event */
 				//	event = 0;
 				//	MQTT_queueData(&package_t);
 				}
 				else if(buffer[i+1] & proverMask == proverStart){
 
-					/* Update event */
 				//	event = 1;
 				//	MQTT_queueData(&package_t);
 				}
 				else if(buffer[i] & proverMask == proverEnd){
 
-					/* Update event */
 				//	event = 2;
 				//	MQTT_queueData(&package_t);
 				}
-
 				//clear out for next run
 				buffer[i-2] = 0;
 				buffer[i-1] = 0;
@@ -252,7 +241,6 @@ int main(int argc, char **argv)
       }
 
 			//handles other things not to sure yet
-
 			if (sz == 0)
 				break;
 			else if (sz == -1) {
