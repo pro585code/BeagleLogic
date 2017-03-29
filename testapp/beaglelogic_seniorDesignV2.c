@@ -207,24 +207,26 @@ int main(int argc, char **argv)
 				clockValue++;
 				if (buffer[i] != buffer[i-2] || buffer[i + 1] != buffer[i-1]){
 					changes++;
-					//printf("%2x %2x %d this is i %d\n", buffer[i], buffer[i+1], changes,i);
+					if(risingEdgeCounts[8] > 1){
+					  printf("Counts= %lu @i=  %d :: %2x %2x \n", i, risingEdgeCounts[8],buffer[i], buffer[i+1]);
+					}
 					changeState((int) buffer[i], (int) buffer[i + 1]);
 
 				}
 				if (pub_signal){
 
-				//	event = 0;
-				//	MQTT_queueData(&package_t);
+					event = 0;
+					//MQTT_queueData(&package_t);
 				}
 				else if(buffer[i+1] & proverMask == proverStart){
 
-				//	event = 1;
-				//	MQTT_queueData(&package_t);
+					event = 1;
+					//MQTT_queueData(&package_t);
 				}
 				else if(buffer[i] & proverMask == proverEnd){
 
-				//	event = 2;
-				//	MQTT_queueData(&package_t);
+					event = 2;
+					//MQTT_queueData(&package_t);
 				}
 				//clear out for next run
 				buffer[i-2] = 0;
@@ -234,11 +236,11 @@ int main(int argc, char **argv)
 			/* Debug timer */
 			clock_gettime(CLOCK_MONOTONIC, &t4);
 			//printf("time for read and process = %jd\n", timediff(&t3,&t4));
-      if(timediff(&t3, &t4) > 20000000){
-			  printf("clock vlaue = %lu", clockValue);
-        printf("time us %llu\n", timediff(&t3,&t4));
-        return 1;
-      }
+      			//if(timediff(&t3, &t4) > 20000000){
+	                  //printf("clock vlaue = %lu", clockValue);
+                          //printf("time us %llu\n", timediff(&t3,&t4));
+                          //return 1;
+                        //}
 
 			//handles other things not to sure yet
 			if (sz == 0)
