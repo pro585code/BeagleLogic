@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * SeniorDesign.c
  *
@@ -234,28 +235,28 @@ void stateINIT(int temp, state previous){
         LastRisingEdgeTime[j*2+1] = clockValue;
     }
     else if(temp == data.HL){
-		presentState[j] = HL;
-		if(previous == LL || previous == LH)
-			risingEdgeCounts[j*2]++;
-      LastRisingEdgeTime[j*2] = clockValue;
+	presentState[j] = HL;
+	if(previous == LL || previous == LH)
+	risingEdgeCounts[j*2]++;
+        LastRisingEdgeTime[j*2] = clockValue;
     }
     else if(temp == data.LL){
-		    presentState[j] = LL;
+	presentState[j] = LL;
     }
     else if (temp == data.HH){
       presentState[j] = HH;
-		  if(previous == HL || previous == LL){
-			     risingEdgeCounts[j*2+1]++;
-           LastRisingEdgeTime[j*2+1] = clockValue;
+      if(previous == HL || previous == LL){
+        risingEdgeCounts[j*2+1]++;
+        LastRisingEdgeTime[j*2+1] = clockValue;
       }
-		  else if(previous == LH || previous == LL){
-			     risingEdgeCounts[j*2]++;
+      else if(previous == LH || previous == LL){
+	   risingEdgeCounts[j*2]++;
            LastRisingEdgeTime[j*2] = clockValue;
       }
     }
     else{
-		    printf("Error Init\n");
-		    presentState[j] = INIT;
+        printf("Error Init\n");
+        presentState[j] = INIT;
         previous = INIT;
   }
 }

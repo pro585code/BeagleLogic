@@ -1,14 +1,7 @@
-/**
-* beaglelogictestapp.c
-*
-* Copyright (C) 2014 Kumar Abhishek
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License version 2 as
-* published by the Free Software Foundation.
-*
-* 8Mhz sample rate 16 bit samples
-*/
+/** * beaglelogictestapp.c * * Copyright (C) 2014 Kumar Abhishek * * This program is
+free software; you can redistribute it and/or modify * it under the terms of the GNU
+General Public License version 2 as * published by the Free Software Foundation. * *
+8Mhz sample rate 16 bit samples */
 
 #include <signal.h>
 #include <stdint.h>
@@ -46,12 +39,12 @@ sem_t MQTT_mutex;
 #define NONBLOCK
 
 /* for prover stroke */
-#define proverStart 0b00100000
-#define proverEnd   0b00010000
-#define proverMask  0b00110000
+#define proverStart 0b00000010
+#define proverEnd   0b00000001
+#define proverMask  0b00000011
 
-/* Size of Buffer */
-#define bufferSZ 4*1000*1000
+/* Size of buffer */
+#define bufSZ 4*1000*1000
 
 /* Returns time difference in microseconds */
 static uint64_t timediff(struct timespec *tv1, struct timespec *tv2)
@@ -96,10 +89,11 @@ void timer_handler(int signum) {
 int main(int argc, char **argv)
 {
 	int cnt1;
+	int stopper = 0;
 	size_t sz, sz_to_read, cnt;
 
 	/*buffer for read*/
-	char buffer[4 * 1000 * 1000];
+	char buffer[4 * 1000 * 1000] = {0};
 	struct timespec t1, t2, t3, t4;
 	struct pollfd pollfd;
 	struct sigaction sa;
@@ -155,7 +149,7 @@ int main(int argc, char **argv)
 	setitimer(ITIMER_VIRTUAL, &timer, NULL);
 
 
-	/* Configure buffer size - 128 MB */
+	/* Configure buffer size - we need a minimum of 32 MB */
 	beaglelogic_get_buffersize(bfd, &sz_to_read);
 	if (sz_to_read < 128 * 1024 * 1024) {
 		beaglelogic_set_buffersize(bfd, sz_to_read = 128 * 1024 * 1024);
@@ -180,56 +174,58 @@ int main(int argc, char **argv)
 	package_t.bfd_cpy = bfd;
 	package_t.pollfd = pollfd;
 	package_t.MQTT_mutex = &MQTT_mutex;
-	if (start_MQTT_t(&package_t, MQTT_t)) {
-		return 1;
-	}
+	//if (start_MQTT_t(&package_t, MQTT_t)) {
+	//	return 1;
+	//}
 
-	//????????????????????????????????????????????????????????????????????????????????????????
 	clock_gettime(CLOCK_MONOTONIC, &t1);
 	cnt = 0;
 	for (i = 0; i < 10; i++) {
 
 		/* Configure counters */
 		cnt1 = 0;
-	//?????????????????????????????????????????????????????????????????????????????????????????
 
 #if defined(NONBLOCK)
 		poll(&pollfd, 1, 500);
 		int i;
+		int changes = 0;
+		clock_gettime(CLOCK_MONOTONIC, &t3);
+
 		while (1) {
-
 			/*Start a timer for Debug */
-			clock_gettime(CLOCK_MONOTONIC, &t3);
-
+			//clock_gettime(CLOCK_MONOTONIC, &t3);
+			//wait until file is read ?
 			while(!pollfd.revents){};
-			sz = read(bfd, buffer, bufferSZ);
+			sz = read(bfd, buffer, bufSZ);
 
 			/*Check For bit changes*/
-			for (i = 0; i < bufferSZ; i+=2) {
+			for (i = 2; i < bufSZ; i+=2) {
 
 				/*Debug*/
-				printf("%2x %2x\n", buffer[i], buffer[i + 1]);
+				//printf("%2x %2x\n", buffer[i], buffer[i + 1]);
 
 				clockValue++;
 				if (buffer[i] != buffer[i-2] || buffer[i + 1] != buffer[i-1]){
+					changes++;
+					//printf("%2x %2x %d this is i %d\n", buffer[i], buffer[i+1], changes,i);
 					changeState((int) buffer[i], (int) buffer[i + 1]);
+
 				}
 				if (pub_signal){
 
-					event = 0;
-					MQTT_queueData(&package_t);
+				//	event = 0;
+				//	MQTT_queueData(&package_t);
 				}
 				else if(buffer[i+1] & proverMask == proverStart){
 
-					event = 1;
-					MQTT_queueData(&package_t);
+				//	event = 1;
+				//	MQTT_queueData(&package_t);
 				}
 				else if(buffer[i] & proverMask == proverEnd){
 
-					event = 2;
-					MQTT_queueData(&package_t);
+				//	event = 2;
+				//	MQTT_queueData(&package_t);
 				}
-
 				//clear out for next run
 				buffer[i-2] = 0;
 				buffer[i-1] = 0;
@@ -238,7 +234,13 @@ int main(int argc, char **argv)
 			/* Debug timer */
 			clock_gettime(CLOCK_MONOTONIC, &t4);
 			//printf("time for read and process = %jd\n", timediff(&t3,&t4));
+      if(timediff(&t3, &t4) > 20000000){
+			  printf("clock vlaue = %lu", clockValue);
+        printf("time us %llu\n", timediff(&t3,&t4));
+        return 1;
+      }
 
+			//handles other things not to sure yet
 			if (sz == 0)
 				break;
 			else if (sz == -1) {
@@ -248,7 +250,6 @@ int main(int argc, char **argv)
 
 			cnt1 += sz;
 		}
-//????????????????????????????????????????????????????????????????????????????????????????
 #else
 		(void)pollfd;
 		do {
@@ -258,11 +259,9 @@ int main(int argc, char **argv)
 			cnt1 += sz;
 		} while (sz > 0 && cnt1 < sz_to_read);
 #endif
-
-//????????????????????????????????????????????????????????????????????????????????????????
 		cnt += cnt1;
 	}
-//????????????????????????????????????????????????????????????????????????????????????????
+
 	clock_gettime(CLOCK_MONOTONIC, &t2);
 
 	printf("Read %d bytes in %jd us, speed=%jd MB/s\n",
@@ -276,3 +275,4 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+
