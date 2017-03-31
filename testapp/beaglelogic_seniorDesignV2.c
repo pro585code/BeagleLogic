@@ -238,8 +238,8 @@ int main(int argc, char **argv)
 				}
 				*/
 				//clear out for next run
-				buffer[i-2] = 0;
-				buffer[i-1] = 0;
+				stateTestBuffer[i-2] = 0;
+				stateTestBuffer[i-1] = 0;
 			}
 
 			/* Debug timer */
