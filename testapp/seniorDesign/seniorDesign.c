@@ -103,12 +103,11 @@ void stateLL(int temp){
     LastRisingEdgeTime[j*2] = clockValue;
     forwardCount[j]++;
     presentState[j] = HL;
-    
+
     //debug
-    if(risingEdgeCounts[j*2] > 9995){
     	printf("%lu\n", risingEdgeCounts[j*2]);
 	    printf("%2x\n", temp);
-    }
+
   }
   else if( temp == data.HH){
     risingEdgeCounts[j*2]++;

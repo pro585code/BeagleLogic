@@ -100,6 +100,9 @@ int main(int argc, char **argv)
 	struct itimerval timer;
 	MQTT_Package package_t;
 
+	/*only for testing state machine*/
+	char stateTestBuffer[40] = {'0','8','0','0','0','8','0','0','0','8','0','0','0','8','0','0','0','8','0','0','0','8','0','0','0','8','0','0'};
+
 	/* Init Sempahore */
 	sem_init(&MQTT_mutex, 0, 0);
 
@@ -195,22 +198,26 @@ int main(int argc, char **argv)
 			/*Start a timer for Debug */
 			//clock_gettime(CLOCK_MONOTONIC, &t3);
 			//wait until file is read ?
-			while(!pollfd.revents){};
-			sz = read(bfd, buffer, bufSZ);
 
+			//commented out for state machine testing
+			//while(!pollfd.revents){};
+			//sz = read(bfd, buffer, bufSZ);
+
+			//changed for testing state machine only
 			/*Check For bit changes*/
-			for (i = 2; i < bufSZ; i+=2) {
+			for (i = 2; i < 40; i+=2) {
 
 				/*Debug*/
 				//printf("%2x %2x\n", buffer[i], buffer[i + 1]);
 
 				clockValue++;
-				if (buffer[i] != buffer[i-2] || buffer[i + 1] != buffer[i-1]){
+				if (stateTestBuffer[i] != stateTestBuffer[i-2] || stateTestBuffer[i + 1] != stateTestBuffer[i-1]){
 					changes++;
 					//printf("%2x %2x %d this is i %d\n", buffer[i], buffer[i+1], changes,i);
-					changeState((int) buffer[i], (int) buffer[i + 1]);
+					changeState((int) stateTestBuffer[i], (int) stateTestBuffer[i + 1]);
 
 				}
+				/*
 				if (pub_signal){
 
 				//	event = 0;
@@ -226,6 +233,7 @@ int main(int argc, char **argv)
 				//	event = 2;
 				//	MQTT_queueData(&package_t);
 				}
+				*/
 				//clear out for next run
 				buffer[i-2] = 0;
 				buffer[i-1] = 0;
