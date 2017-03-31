@@ -21,11 +21,8 @@
 #define dataHL 0b10000000
 #define dataHH 0b11000000
 #define dataLL 0b00000000
-/* Reset State Values*/
-#define rstLH 0b00000100
-#define rstHL 0b00001000
-#define rstHH 0b00001100
-#define rstLL 0b00000000
+
+#define resetL
 
 /* MQTT defined values */
 #define ADDRESS		"tcp://localhost:1883"
@@ -57,19 +54,17 @@ void changeState(int current1, int current2){
     if(j==4){
 
       /* reset for the 2nd byte */
-      data.LH = rstLH;
-      data.HL = rstHL;
-      data.HH = rstHH;
-      data.LL = rstLL;
-      mask = rstHH;
+      data.LH = dataLH;
+      data.HL = dataHL;
+      data.HH = dataHH;
+      mask = dataHH;
       read = current2;
+     // printf("%d----------------------------------------------\n",read);
 
     }
 
     /* access bits step 1 */
     temp = read & mask;
-    if(j==4)
-   // printf("temp %2x, this is j %d\n", temp,j);
 
     switch(presentState[j]){
       case LL:
@@ -111,11 +106,6 @@ void stateLL(int temp){
     LastRisingEdgeTime[j*2] = clockValue;
     forwardCount[j]++;
     presentState[j] = HL;
-
-    //debug
-    	printf("%lu\n", risingEdgeCounts[j*2]);
-	printf("%2x\n", temp);
-
   }
   else if( temp == data.HH){
     risingEdgeCounts[j*2]++;
@@ -212,23 +202,15 @@ void stateINIT(int temp, state previous){
 
         if(temp == data.LH){
           presentState[j] = LH;
-          risingEdgeCounts[j*2+1]++;
-          LastRisingEdgeTime[j*2+1] = clockValue;
         }
         else if(temp == data.HL){
           presentState[j] = HL;
-          	risingEdgeCounts[j*2]++;
-            LastRisingEdgeTime[j*2] = clockValue;
         }
         else if (temp == data.LL){
           presentState[j] = LL;
         }
         else if(temp == data.HH){
           presentState[j] = HH;
-          risingEdgeCounts[j*2]++;
-          LastRisingEdgeTime[j*2] = clockValue;
-      	  risingEdgeCounts[j*2+1]++;
-          LastRisingEdgeTime[j*2+1] = clockValue;
         }
         else{
           printf("Error at start of INIT \n");

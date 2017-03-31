@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 	MQTT_Package package_t;
 
 	/*only for testing state machine*/
-	char stateTestBuffer[40] = {'0','8','0','0','0','8','0','0','0','8','0','0','0','8','0','0','0','8','0','0','0','8','0','0','0','8','0','0'};
+	char stateTestBuffer[40] = {0,8,0,0,0,8,0,0,0,8,0,0,0,8,0,0,0,8,0,0,0,8,0,0,0,8,0,0,0,8,0,0,0,8,0,0,0,8,0,0};
 
 	/* Init Sempahore */
 	sem_init(&MQTT_mutex, 0, 0);
@@ -190,11 +190,11 @@ int main(int argc, char **argv)
 
 #if defined(NONBLOCK)
 		poll(&pollfd, 1, 500);
-		int i;
+		int i=0;
 		int changes = 0;
 		clock_gettime(CLOCK_MONOTONIC, &t3);
 
-		while (1) {
+		while (i==0) {
 			/*Start a timer for Debug */
 			//clock_gettime(CLOCK_MONOTONIC, &t3);
 			//wait until file is read ?
@@ -207,13 +207,14 @@ int main(int argc, char **argv)
 			/*Check For bit changes*/
 			for (i = 2; i < 40; i+=2) {
 
+				//printf("made it to for loop\n");
 				/*Debug*/
-				//printf("%2x %2x\n", buffer[i], buffer[i + 1]);
+				//printf("%2x vs %2x and %2x vs %2x\n", stateTestBuffer[i], stateTestBuffer[i-2],stateTestBuffer[i-1],stateTestBuffer[i+1]);
 
 				clockValue++;
 				if (stateTestBuffer[i] != stateTestBuffer[i-2] || stateTestBuffer[i + 1] != stateTestBuffer[i-1]){
 					changes++;
-					//printf("%2x %2x %d this is i %d\n", buffer[i], buffer[i+1], changes,i);
+					printf("%2x %2x %d this is i %d\n", stateTestBuffer[i], stateTestBuffer[i+1], changes,i);
 					changeState((int) stateTestBuffer[i], (int) stateTestBuffer[i + 1]);
 
 				}
