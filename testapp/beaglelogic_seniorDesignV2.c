@@ -193,8 +193,10 @@ int main(int argc, char **argv)
 		int i=0;
 		int changes = 0;
 		clock_gettime(CLOCK_MONOTONIC, &t3);
+		int testRUN =0;
 
-		while (i==0) {
+		while (testRUN==0) {
+			testRUN++;
 			/*Start a timer for Debug */
 			//clock_gettime(CLOCK_MONOTONIC, &t3);
 			//wait until file is read ?
@@ -205,7 +207,7 @@ int main(int argc, char **argv)
 
 			//changed for testing state machine only
 			/*Check For bit changes*/
-			for (i = 2; i < 40; i+=2) {
+			for (i = 2; i <40; i+=2) {
 
 				//printf("made it to for loop\n");
 				/*Debug*/

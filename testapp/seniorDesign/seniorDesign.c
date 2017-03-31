@@ -69,7 +69,6 @@ void changeState(int current1, int current2){
     /* access bits step 1 */
     temp = read & mask;
     if(j==4)
-   // printf("temp %2x, this is j %d\n", temp,j);
 
     switch(presentState[j]){
       case LL:
@@ -113,8 +112,8 @@ void stateLL(int temp){
     presentState[j] = HL;
 
     //debug
-    	printf("%lu\n", risingEdgeCounts[j*2]);
-	printf("%2x\n", temp);
+    	printf("rising edge counts %lu\n", risingEdgeCounts[j*2]);
+	printf("temp %2x\n", temp);
 
   }
   else if( temp == data.HH){
