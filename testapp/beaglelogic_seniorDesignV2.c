@@ -224,7 +224,6 @@ int main(int argc, char **argv)
 				//printf("%2x %2x\n", buffer[i], buffer[i + 1]);
 
 				clockValue++;
-				runCounter ++;
 
 				/* Check to see what iteration you are on */
 				if(i>0){
@@ -258,7 +257,7 @@ int main(int argc, char **argv)
 				/* Check to see if at the end of bytes read in if so save them*/
 				if(i == sz-2){
 					temp_buff2 = buffer[sz-2];  // 3,999,998
-					temp_buff1 = buffer[sz-1];  // 3,999,999 
+					temp_buff1 = buffer[sz-1];  // 3,999,999
 				}
 
 				/* Check to see if we need to transmit to MQTT */
@@ -281,7 +280,7 @@ int main(int argc, char **argv)
 				/* clear out for next run */
 				buffer[i-2] = 0;
 				buffer[i-1] = 0;
-
+				runCounter++;
 			}// end for
 			/* Debug timer */
 			clock_gettime(CLOCK_MONOTONIC, &t4);
