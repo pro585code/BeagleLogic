@@ -89,7 +89,7 @@ void timer_handler(int signum) {
 int main(int argc, char **argv)
 {
 	int cnt1;
-	int runCounter = 0; // keeps track of how
+	int runCounter = 0;
 	int stopper = 0;
 	size_t sz, sz_to_read, cnt;
 
@@ -201,9 +201,10 @@ int main(int argc, char **argv)
 		uint64_t masterTime = 0;
 
 		while (1) {
+
 			/*Start a timer for Debug */
 			clock_gettime(CLOCK_MONOTONIC, &t3);
-			//wait until file is read ?
+
 			while(!pollfd.revents){};
 			sz = read(bfd, buffer, bufSZ);
 			if(sz == 0)
@@ -213,35 +214,25 @@ int main(int argc, char **argv)
 				continue;
 			}
 
-			/* Save last 2 two for the next compare */
-			/* aren't we doing this below??*/
-			//temp_buff1 = buffer[3999999];
-
 			/*Check For bit changes*/
 			for (i=0; i < sz; i+=2) {
 
 				/*Debug*/
 				//printf("%2x %2x\n", buffer[i], buffer[i + 1]);
-
 				clockValue++;
 				runCounter ++;
 
 				/* Check to see what iteration you are on */
 				if(i>0){
 					if (buffer[i] != buffer[i-2] || buffer[i + 1] != buffer[i-1]){
-						//printf("changes %d \n", changes);
-						//if(risingEdgeCounts[8] >= 120){
-					  	//printf("Counts= %lu @i=  %d :: %2x %2x \n",risingEdgeCounts[8], i ,buffer[i], buffer[i+1]);
-					 	//printf("time= %llu \n", masterTime);
-						//}
+
 						fprintf(fd, "\n %d, %2x, %2x, %d, %d, %llu", i, buffer[i], buffer[i+1], risingEdgeCounts[8], sz, masterTime);
 						changeState((int) buffer[i], (int) buffer[i + 1]);
-
 					}
 				}
 				else if(i==0){
 
-					/* first run ever */
+					/* first run ever... We will never go in here lolz */
 					if(runCounter == 0){
 						changeState((int)buffer[i], (int)buffer[i+1]);
 						fprintf(fd, "\n %d, %2x, %2x, %d, %d, %llu", i, buffer[i], buffer[i+1], risingEdgeCounts[8], sz, masterTime);
@@ -258,7 +249,7 @@ int main(int argc, char **argv)
 				/* Check to see if at the end of bytes read in if so save them*/
 				if(i == sz-2){
 					temp_buff2 = buffer[sz-2];  // 3,999,998
-					temp_buff1 = buffer[sz-1];  // 3,999,999 
+					temp_buff1 = buffer[sz-1];  // 3,999,999
 				}
 
 				/* Check to see if we need to transmit to MQTT */
@@ -283,27 +274,10 @@ int main(int argc, char **argv)
 				buffer[i-1] = 0;
 
 			}// end for
+
 			/* Debug timer */
 			clock_gettime(CLOCK_MONOTONIC, &t4);
 			masterTime += timediff(&t3,&t4);
-			//printf("time for read and process = %jd\n", timediff(&t3,&t4));
-      			//if(timediff(&t3, &t4) > 20000000){
-	                  //printf("clock vlaue = %lu", clockValue);
-                          //printf("time us %llu\n", timediff(&t3,&t4));
-                          //return 1;
-                        //}
-
-			//handles other things not to sure yet
-			/* moved this to above to prevent errors
-			if (sz == 0)
-				continue;
-			if (sz == -1) {
-				poll(&pollfd, 1, 500);
-				continue;
-			}
-			*/
-
-			cnt1 += sz;
 		}
 #else
 		(void)pollfd;
