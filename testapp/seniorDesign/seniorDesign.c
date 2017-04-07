@@ -27,7 +27,7 @@
 #define rstLL  0b00000000
 
 /* MQTT defined values */
-#define ADDRESS		"tcp://localhost:1883"
+#define ADDRESS		"tcp://192.168.1.149:1883"
 #define CLIENTID	"FMCFlow"
 #define QOS		1
 #define TIMEOUT		10000
@@ -300,12 +300,12 @@ inline void MQTT_queueData(void *MQTT_package) {
   package->MQTT_event = event;
 
   /* Signal to publish */
-	sem_getvalue(&MQTT_mutex, &semVal);
-	sem_post(&MQTT_mutex);
-	//printf("semVal after post is %d\n", semVal);
+  sem_getvalue(&MQTT_mutex, &semVal);
+  sem_post(&MQTT_mutex);
+  //printf("semVal after post is %d\n", semVal);
 
-	/* Set Flag to 0*/
-	pub_signal = 0;
+  /* Set Flag to 0*/
+  pub_signal = 0;
 }
 
 /* Thread handler*/
@@ -314,12 +314,12 @@ void *MQTT_thread(void *MQTT_package){
   int y;
   const char *TOPIC[3];
   TOPIC[0] = "OneSec";
-  TOPIC[1] = "prover/start";
-  TOPIC[2] = "prover/end";
+  TOPIC[1] = "pstart";
+  TOPIC[2] = "pend";
 
-	MQTT_Package *package = (MQTT_Package*)MQTT_package;
-	int rc, semVal;
-	char *PAYLOAD = (char*) malloc(PAYLOADSIZE);
+  MQTT_Package *package = (MQTT_Package*)MQTT_package;
+  int rc, semVal;
+  char *PAYLOAD = (char*) malloc(PAYLOADSIZE);
   strcpy(PAYLOAD,"Hello");
 
 	/* Init MQTT*/
@@ -351,7 +351,7 @@ void *MQTT_thread(void *MQTT_package){
       pubmsg.payloadlen = strlen(PAYLOAD);
       pubmsg.qos = QOS;
       pubmsg.retained = 0;
-      MQTTClient_publishMessage(client, TOPIC[event], &pubmsg, &token);
+      MQTTClient_publishMessage(client, TOPIC[package->MQTT_event], &pubmsg, &token);
       strcpy(PAYLOAD,"");
 
       /* Create Payload to send */
@@ -368,14 +368,14 @@ void *MQTT_thread(void *MQTT_package){
 
           pubmsg.payload = PAYLOAD;
           pubmsg.payloadlen = strlen(PAYLOAD);
-          MQTTClient_publishMessage(client, TOPIC[event], &pubmsg, &token);
+          MQTTClient_publishMessage(client, TOPIC[package->MQTT_event], &pubmsg, &token);
         }
         sprintf(PAYLOAD, "channel %d Rising Edge Counts = %lu\n Last Rising Edge Time = %lu\n",
           y,package->MQTT_risingEdgeTime[y], package->MQTT_LastRisingEdgeTime[y]);
 
           pubmsg.payload = PAYLOAD;
           pubmsg.payloadlen = strlen(PAYLOAD);
-        MQTTClient_publishMessage(client, TOPIC[event], &pubmsg, &token);
+        MQTTClient_publishMessage(client, TOPIC[package->MQTT_event], &pubmsg, &token);
       }
 
       /* Add Tigger event */
@@ -384,7 +384,7 @@ void *MQTT_thread(void *MQTT_package){
 
       pubmsg.payload = PAYLOAD;
       pubmsg.payloadlen = strlen(PAYLOAD);
-      MQTTClient_publishMessage(client, TOPIC[event], &pubmsg, &token);
+      MQTTClient_publishMessage(client, TOPIC[package->MQTT_event], &pubmsg, &token);
 
       /* Clear PAYLOAD */
       memset(PAYLOAD,0,sizeof(PAYLOAD));

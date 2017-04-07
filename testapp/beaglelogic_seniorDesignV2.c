@@ -221,7 +221,6 @@ int main(int argc, char **argv)
 				//printf("%2x %2x\n", buffer[i], buffer[i + 1]);
 				clockValue++;
 
-				/* Check to see what iteration you are on */
 				if(i>0){
 					if (buffer[i] != buffer[i-2] || buffer[i + 1] != buffer[i-1]){
 
@@ -231,7 +230,7 @@ int main(int argc, char **argv)
 				}
 				else if(i==0){
 
-					/* first run ever... We will never go in here lolz */
+					/* first run ever */
 					if(runCounter == 0){
 						changeState((int)buffer[i], (int)buffer[i+1]);
 						fprintf(fd, "\n %d, %2x, %2x, %d, %d, %llu", i, buffer[i], buffer[i+1], risingEdgeCounts[8], sz, masterTime);
@@ -257,12 +256,12 @@ int main(int argc, char **argv)
 					event = 0;
 					MQTT_queueData(&package_t);
 				}
-				else if(buffer[i+1] & proverMask == proverStart){
+				else if(buffer[i+1] & proverStart == proverStart){
 
 					event = 1;
 					MQTT_queueData(&package_t);
 				}
-				else if(buffer[i] & proverMask == proverEnd){
+				else if(buffer[i+1] & proverEnd == proverEnd){
 
 					event = 2;
 					MQTT_queueData(&package_t);
