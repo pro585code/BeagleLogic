@@ -34,7 +34,7 @@ uint32_t risingEdgeCounts[10] = {0};
 uint32_t LastRisingEdgeTime[10] = {0};
 uint32_t clockValue = 0;
 uint32_t event = 9999;
-uint8_t *buf //,*bl_mem;
+uint8_t *buf; //,*bl_mem;
 pthread_t MQTT_t;
 sem_t MQTT_mutex;
 
