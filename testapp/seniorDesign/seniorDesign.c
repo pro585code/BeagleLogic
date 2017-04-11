@@ -27,7 +27,7 @@
 #define rstLL  0b00000000
 
 /* MQTT defined values */
-#define ADDRESS		"tcp://192.168.1.149:1883"
+#define ADDRESS		"tcp://localhost:1883"
 #define CLIENTID	"FMCFlow"
 #define QOS		1
 #define TIMEOUT		10000
