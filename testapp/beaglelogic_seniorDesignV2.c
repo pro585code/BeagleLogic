@@ -1,5 +1,8 @@
-/** * beaglelogictestapp.c * * Copyright (C) 2014 Kumar Abhishek * * This program is
-free software; you can redistribute it and/or modify * it under the terms of the GNU
+/** * beaglelogictestapp.c
+ *
+* Copyright (C) 2014 Kumar Abhishek
+*
+* This program is free software; you can redistribute it and/or modify * it under the terms of the GNU
 General Public License version 2 as * published by the Free Software Foundation. * *
 8Mhz sample rate 16 bit samples */
 
@@ -31,7 +34,7 @@ uint32_t risingEdgeCounts[10] = {0};
 uint32_t LastRisingEdgeTime[10] = {0};
 uint32_t clockValue = 0;
 uint32_t event = 9999;
-uint8_t *buf,*bl_mem;
+uint8_t *buf //,*bl_mem;
 pthread_t MQTT_t;
 sem_t MQTT_mutex;
 
@@ -88,7 +91,7 @@ void timer_handler(int signum) {
 
 int main(int argc, char **argv)
 {
-	int cnt1;
+	//int cnt1;
 	int runCounter = 0;
 	int stopper = 0;
 	size_t sz, sz_to_read, cnt;
@@ -111,11 +114,11 @@ int main(int argc, char **argv)
 
 	/* Open BeagleLogic */
 	clock_gettime(CLOCK_MONOTONIC, &t1);
-#if defined(NONBLOCK)
+//#if defined(NONBLOCK)
 	bfd = beaglelogic_open_nonblock();
-#else
-	bfd = beaglelogic_open();
-#endif
+//#else
+//	bfd = beaglelogic_open();
+//#endif
 	clock_gettime(CLOCK_MONOTONIC, &t2);
 
 	if (bfd == -1) {
@@ -127,7 +130,7 @@ int main(int argc, char **argv)
 		timediff(&t1, &t2));
 
 	/* Memory map the file */
-	bl_mem = beaglelogic_mmap(bfd);
+	//bl_mem = beaglelogic_mmap(bfd);
 
 	/* Configure the poll descriptor */
 	pollfd.fd = bfd;
@@ -194,7 +197,7 @@ int main(int argc, char **argv)
 		/* Configure counters */
 		cnt1 = 0;
 
-#if defined(NONBLOCK)
+//#if defined(NONBLOCK)
 		poll(&pollfd, 1, 500);
 		int i;
 		int risingEdgeDiff =100;
@@ -277,18 +280,18 @@ int main(int argc, char **argv)
 			clock_gettime(CLOCK_MONOTONIC, &t4);
 			masterTime += timediff(&t3,&t4);
 		}
-#else
-		(void)pollfd;
-		do {
-			sz = read(bfd, buf2, 64 * 1024 * 16);
-			if (sz == -1){
-				printf("broke\n");
-				break;
-			}
-			cnt1 += sz;
-		} while (sz > 0 && cnt1 < sz_to_read);
-#endif
-		cnt += cnt1;
+//#else
+		//(void)pollfd;
+		//do {
+			//sz = read(bfd, buf2, 64 * 1024 * 16);
+			//if (sz == -1){
+				//printf("broke\n");
+				//break;
+			//}
+			//cnt1 += sz;
+		//} while (sz > 0 && cnt1 < sz_to_read);
+//#endif
+		//cnt += cnt1;
 
 	clock_gettime(CLOCK_MONOTONIC, &t2);
 
@@ -296,7 +299,7 @@ int main(int argc, char **argv)
 		cnt, timediff(&t1, &t2), cnt / timediff(&t1, &t2));
 
 	/* Done, close mappings, file and free the buffers */
-	beaglelogic_munmap(bfd, bl_mem);
+	//beaglelogic_munmap(bfd, bl_mem);
 	beaglelogic_close(bfd);
 
 	free(buf);
