@@ -195,7 +195,7 @@ int main(int argc, char **argv)
 	cnt = 0;
 
 		/* Configure counters */
-		cnt1 = 0;
+		//cnt1 = 0;
 
 //#if defined(NONBLOCK)
 		poll(&pollfd, 1, 500);
