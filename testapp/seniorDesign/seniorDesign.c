@@ -355,7 +355,7 @@ void *MQTT_thread(void *MQTT_package){
       strcpy(PAYLOAD,"");
 
       /* Create Payload to send */
-      for(y=0; y<10; y++){
+      for(y=0; y<15; y++){
 
         if(y<5){
 
