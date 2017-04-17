@@ -311,7 +311,7 @@ inline void MQTT_queueData(void *MQTT_package) {
 /* Thread handler*/
 void *MQTT_thread(void *MQTT_package){
 
-  int y;
+  int y,x;
   const char *TOPIC[3];
   TOPIC[0] = "OneSec";
   TOPIC[1] = "pstart";
@@ -369,13 +369,16 @@ void *MQTT_thread(void *MQTT_package){
           pubmsg.payload = PAYLOAD;
           pubmsg.payloadlen = strlen(PAYLOAD);
           MQTTClient_publishMessage(client, TOPIC[package->MQTT_event], &pubmsg, &token);
-        }
-        sprintf(PAYLOAD, "channel %d Rising Edge Counts = %lu\n Last Rising Edge Time = %lu\n",
-          y,package->MQTT_risingEdgeTime[y], package->MQTT_LastRisingEdgeTime[y]);
+        }else{
+
+          x = y - 5;
+          sprintf(PAYLOAD, "channel %d Rising Edge Counts = %lu\n Last Rising Edge Time = %lu\n",
+            x,package->MQTT_risingEdgeTime[x], package->MQTT_LastRisingEdgeTime[x]);
 
           pubmsg.payload = PAYLOAD;
           pubmsg.payloadlen = strlen(PAYLOAD);
-        MQTTClient_publishMessage(client, TOPIC[package->MQTT_event], &pubmsg, &token);
+          MQTTClient_publishMessage(client, TOPIC[package->MQTT_event], &pubmsg, &token);
+        }
       }
 
       /* Add Tigger event */
